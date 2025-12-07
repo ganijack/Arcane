@@ -85,12 +85,18 @@ class BattleManager {
         Character[] turnArray = turnOrder.toArray();
         CharacterSorter.mergeSort(turnArray, 0, turnArray.length - 1);
         
+        // --- BAGIAN YANG DIUBAH (Hanya Tampilkan Hero) ---
         System.out.println("\n🎯 Turn Order (by Speed):");
+        int displayCount = 1;
         for (int i = 0; i < turnArray.length; i++) {
-            System.out.println((i + 1) + ". " + turnArray[i]);
+            if (turnArray[i] instanceof Hero) {
+                System.out.println(displayCount + ". " + turnArray[i]);
+                displayCount++;
+            }
         }
+        // ------------------------------------------------
         
-        // Execute turns
+        // Execute turns (Logic tetep jalan untuk semua character termasuk Enemy)
         for (int i = 0; i < turnArray.length; i++) {
             Character c = turnArray[i];
             if (!c.isAlive()) continue;
