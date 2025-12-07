@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 // ==================== BATTLE MANAGER ====================
+//anjayy mabarrr
 class BattleManager {
     private HeroLinkedList heroes;
     private EnemyLinkedList currentEnemies;
