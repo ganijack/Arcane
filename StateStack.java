@@ -57,7 +57,7 @@ class StateStack {
         size = 0;
     }
     
-    void push(StateSnapshot data) {
+    void push(StateSnapshot data) { //untuk memasukkan data
         StateStackNode newNode = new StateStackNode(data);
         newNode.next = top;
         top = newNode;
