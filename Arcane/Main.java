@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-// ==================== MAIN ====================
+// ==================== MAIN ====================K=LANI
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static HeroLinkedList heroes;
