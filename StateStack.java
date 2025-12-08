@@ -49,7 +49,7 @@ class StateStackNode {
 }
 
 class StateStack {
-    private StateStackNode top; //bagian atas dari stack
+    private StateStackNode top; //bagian atas stack
     private int size;
     
     StateStack() {
@@ -57,7 +57,7 @@ class StateStack {
         size = 0;
     }
     
-    void push(StateSnapshot data) { //untuk memasukkan data
+    void push(StateSnapshot data) {
         StateStackNode newNode = new StateStackNode(data);
         newNode.next = top;
         top = newNode;
