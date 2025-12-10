@@ -36,12 +36,36 @@ public class Main {
     }
     
     private static void initializeGame() {
-        System.out.println("╔════════════════════════════════════════╗");
-        System.out.println("║                                        ║");
-        System.out.println("║     ARCANE BATTLE RUSH                 ║");
-        System.out.println("║     Turn-Based RPG Battle              ║");
-        System.out.println("║                                        ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        System.out.println("         _=====_                               _=====_");
+        System.out.println("        / _____ \\                             / _____ \\");
+        System.out.println("      +.-'_____'-.---------------------------.-'_____'-.+");
+        System.out.println("     /   |     |  '.      U N R A M        .'  |  _  |   \\");
+        System.out.println("    / ___| /|\\ |___ \\                     / ___| /_\\ |___ \\");
+        System.out.println("   / |      |      | ;  __           _   ; | _         _ | ;");
+        System.out.println("   | | <---   ---> | | |__|         |_:> | ||_|       (_)| |");
+        System.out.println("   | |___   |   ___| ;SELECT       START ; |___       ___| ;");
+        System.out.println("   |\\    | \\|/ |    /  _     ___      _   \\    | (X) |    /|");
+        System.out.println("   | \\   |_____|  .',\\\" \\\"', |___|  ,'\\\" \\\"', '|_____|  .' |");
+        System.out.println("   |  '-.______.-' /       \\ANALOG/       \\  '-._____.-'   |");
+        System.out.println("   |               |       |------|       |                |");
+        System.out.println("   |              /\\       /      \\       /\\               |");
+        System.out.println("   |             /  '.___.'        '.___.'  \\              |");
+        System.out.println("   |            /                            \\             |");
+        System.out.println("    \\          /                              \\           /");
+        System.out.println("     \\________/                                \\_________/");
+        System.out.println();
+        System.out.println("╔═════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                                             ║");
+        System.out.println("║  $$$$$$\\                                                    ║");
+        System.out.println("║ $$  __$$\\                                                   ║");
+        System.out.println("║ $$ /  $$ | $$$$$$\\   $$$$$$$\\ $$$$$$\\  $$$$$$$\\   $$$$$$\\   ║");
+        System.out.println("║ $$$$$$$$ |$$  __$$\\ $$  _____|\\____$$\\ $$  __$$\\ $$  __$$\\  ║");
+        System.out.println("║ $$  __$$ |$$ |  \\__|$$ /      $$$$$$$ |$$ |  $$ |$$$$$$$$ | ║");
+        System.out.println("║ $$ |  $$ |$$ |      $$ |     $$  __$$ |$$ |  $$ |$$   ____| ║");
+        System.out.println("║ $$ |  $$ |$$ |      \\$$$$$$$\\\\$$$$$$$ |$$ |  $$ |\\$$$$$$$\\  ║");
+        System.out.println("║ \\__|  \\__|\\__|       \\_______|\\_______|\\__|  \\__| \\_______| ║");
+        System.out.println("║                                                             ║");
+        System.out.println("╚═════════════════════════════════════════════════════════════╝");
         
         // Initialize heroes
         heroes = new HeroLinkedList();
@@ -117,7 +141,7 @@ public class Main {
                         System.out.println("💰 Remaining Gold: " + playerGold);
                     } else {
                         System.out.println("❌ Cannot unlock " + skillName + 
-                                         ". Parent skill must be unlocked first or skill already unlocked.");
+                                         ". Parent skill1 must be unlocked first or skill already unlocked.");
                     }
                 } else {
                     System.out.println("❌ Not enough gold! Need 100 gold.");
