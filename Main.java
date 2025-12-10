@@ -72,9 +72,7 @@ public class Main {
         heroes.insert(new Hero(1, "Aria the Swift", 100, 15, 25));
         heroes.insert(new Hero(2, "Brutus the Tank", 150, 20, 10));
         heroes.insert(new Hero(3, "Celeste the Mage", 80, 25, 20));
-        
-        System.out.println("✓ Game initialized with " + heroes.size() + " heroes");
-        System.out.println("💰 Starting Gold: 200\n");
+
         playerGold = 200;
     }
     
@@ -87,7 +85,7 @@ public class Main {
         System.out.println("║  [3] Start Battle                      ║");
         System.out.println("║  [4] Exit Game                         ║");
         System.out.println("╚════════════════════════════════════════╝");
-        System.out.println("💰 Gold: " + playerGold);
+        System.out.println("Current Gold: " + playerGold);
         System.out.print("\nChoose option: ");
     }
     
