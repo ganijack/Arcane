@@ -26,9 +26,6 @@ public class Main {
                     startBattle();
                     break;
                 case 4:
-                    searchHeroMenu();
-                    break;
-                case 5:
                     running = false;
                     System.out.println("\n👋 Thanks for playing Arcane Battle Rush!");
                     break;
@@ -290,48 +287,5 @@ public class Main {
         scanner.nextLine(); // Clear newline
         return result;
     }
-
-    private static void searchHeroMenu() {
-    System.out.println("\n╔════════════════════════════════════════╗");
-    System.out.println("║            SEARCH HERO                 ║");
-    System.out.println("╚════════════════════════════════════════╝\n");
-
-    System.out.println("[1] Search by Name");
-    System.out.println("[2] Search by ID");
-    System.out.println("[3] Back");
-    System.out.print("Choose: ");
-
-    int choice = getIntInput();
-
-    if (choice == 1) {
-        System.out.print("Enter Hero Name: ");
-        String name = scanner.nextLine();
-
-        Hero found = HeroSearcher.linearSearchHero(heroes, name);
-
-        if (found != null) {
-            System.out.println("\n🎉 Hero Found!");
-            System.out.println(found);
-        } else {
-            System.out.println("\n❌ Hero Not Found!");
-        }
-
-    } else if (choice == 2) {
-        System.out.print("Enter Hero ID: ");
-        int id = getIntInput();
-
-        Hero found = HeroSearcher.searchHeroById(heroes, id);
-
-        if (found != null) {
-            System.out.println("\n🎉 Hero Found!");
-            System.out.println(found);
-        } else {
-            System.out.println("\n❌ Hero Not Found!");
-        }
-    }
-
-    System.out.println("\nPress Enter to continue...");
-    scanner.nextLine();
-}
 
 }
