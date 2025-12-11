@@ -101,7 +101,7 @@ class SkillTree {
     }
     
     boolean unlockSkill(String skillName) {
-        return unlockSkillRecursive(root, skillName);
+        return unlockSkillRecursive(root, skillName.trim());
     }
     
     private boolean unlockSkillRecursive(SkillNode node, String skillName) {
@@ -109,7 +109,7 @@ class SkillTree {
         
         for (int i = 0; i < node.children.size(); i++) {
             SkillNode child = node.children.get(i);
-            if (child.skillName.equals(skillName)) {
+            if (child.skillName.equalsIgnoreCase(skillName)) {
                 if (node.unlocked && !child.unlocked) {
                     child.unlocked = true;
                     return true;
