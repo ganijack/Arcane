@@ -83,8 +83,7 @@ public class Main {
         System.out.println("║  [1] View Heroes                       ║");
         System.out.println("║  [2] Upgrade Skills                    ║");
         System.out.println("║  [3] Start Battle                      ║");
-        System.out.println("║  [4] Search Hero                       ║");
-        System.out.println("║  [5] Exit Game                         ║");
+        System.out.println("║  [4] Exit Game                         ║");
         System.out.println("╚════════════════════════════════════════╝");
         System.out.println("Current Gold: " + playerGold);
         System.out.print("\nChoose option: ");
