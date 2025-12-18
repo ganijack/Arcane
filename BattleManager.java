@@ -1,6 +1,6 @@
 import java.util.Scanner;
+
 // ==================== BATTLE MANAGER ====================
-//biji wimar
 class BattleManager {
     private HeroLinkedList heroes;
     private EnemyLinkedList currentEnemies;
@@ -8,6 +8,9 @@ class BattleManager {
     private StateStack historyStack;
     private int currentRound;
     private Scanner scanner;
+    private int currentWave;
+    private int eventBonusDamage;
+    private int eventBonusGold;
     
     BattleManager(HeroLinkedList heroes, WaveQueue waveQueue) {
         this.heroes = heroes;
@@ -16,33 +19,47 @@ class BattleManager {
         this.currentRound = 0;
         this.scanner = new Scanner(System.in);
         this.currentEnemies = new EnemyLinkedList();
+        this.currentWave = 0;
+        this.eventBonusDamage = 0;
+        this.eventBonusGold = 0;
     }
     
     void startBattle() {
-        System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║     BATTLE START!                      ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        System.out.println("\n╔═══════════════════════════════════════╗");
+        System.out.println("║          BATTLE START!                 ║");
+        System.out.println("╚═══════════════════════════════════════╝\n");
+        
+        currentWave = 1;
         
         if (!waveQueue.isEmpty()) {
             currentEnemies = waveQueue.dequeue();
-            System.out.println("🌊 Wave 1 has arrived!");
+            System.out.println("Wave " + currentWave + " has arrived!");
             displayEnemies();
+            checkWaveEvents(currentWave);
         }
         
         while (true) {
             if (allHeroesDead()) {
-                System.out.println("\n💀 GAME OVER! All heroes have fallen...");
+                System.out.println("\nGAME OVER! All heroes have fallen...");
                 break;
             }
             
             if (currentEnemies.isEmpty() || allEnemiesDead()) {
+                if (eventBonusGold > 0) {
+                    System.out.println("\nTREASURE BONUS: +" + eventBonusGold + " Gold!");
+                    eventBonusGold = 0;
+                }
+                
                 if (waveQueue.isEmpty()) {
-                    System.out.println("\n🎉 VICTORY! All waves defeated!");
+                    System.out.println("\nVICTORY! All waves defeated!");
                     break;
                 }
+                
+                currentWave++;
                 currentEnemies = waveQueue.dequeue();
-                System.out.println("\n🌊 Next wave incoming!");
+                System.out.println("\nWave " + currentWave + " incoming!");
                 displayEnemies();
+                checkWaveEvents(currentWave);
             }
             
             playRound();
@@ -60,147 +77,262 @@ class BattleManager {
         }
     }
     
+    // ==================== WAVE EVENT SYSTEM ====================
+    private void checkWaveEvents(int waveNumber) {
+        eventBonusDamage = 0;
+        
+        if (waveNumber == 3) {
+            System.out.println("⚡ HEALING EVENT ACTIVATED!");
+            System.out.println("All heroes recover 30% HP!");
+            healAllHeroes(30);
+        }
+        
+        if (waveNumber == 5) {
+            System.out.println("⚡ POWER BOOST ACTIVATED!");
+            System.out.println("Heroes deal +5 damage!");
+            eventBonusDamage = 5;
+        }
+        
+        if (waveNumber == 7) {
+            System.out.println("⚡ TREASURE EVENT!");
+            System.out.println("Complete this wave for bonus!");
+            eventBonusGold = 150;
+        }
+        
+        if (waveNumber == 10) {
+            System.out.println("⚡ BOSS WAVE!");
+            System.out.println("Defeat the boss!");
+        }
+    }
+    
+    private void healAllHeroes(int percent) {
+        for (int i = 0; i < heroes.size(); i++) {
+            Hero h = heroes.get(i);
+            if (h.isAlive()) {
+                int healAmount = (h.getMaxHp() * percent) / 100;
+                int newHp = h.getCurrentHp() + healAmount;
+                if (newHp > h.getMaxHp()) {
+                    newHp = h.getMaxHp();
+                }
+                h.setCurrentHp(newHp);
+                System.out.println("💚 " + h.getName() + " healed +" + healAmount + " HP");
+            }
+        }
+    }
+    
+    // ==================== SISTEM ROUND DENGAN MERGESORT ====================
     private void playRound() {
         currentRound++;
-        System.out.println("\n═══════════════════════════════════════");
-        System.out.println("          ROUND " + currentRound);
-        System.out.println("═══════════════════════════════════════");
+        System.out.println("\n═════════════════════════════════════════");
+        System.out.println("               ROUND " + currentRound);
+        System.out.println("═════════════════════════════════════════");
         
         // Save state before round
         historyStack.push(new StateSnapshot(heroes, currentEnemies, currentRound));
         
-        // Combine all alive characters into CharacterLinkedList
-        CharacterLinkedList turnOrder = new CharacterLinkedList();
+        // IMPLEMENTASI MERGESORT: Sort heroes by speed (highest first)
+        Hero[] heroArray = new Hero[heroes.size()];
         for (int i = 0; i < heroes.size(); i++) {
-            Hero h = heroes.get(i);
-            if (h.isAlive()) turnOrder.insert(h);
-        }
-        for (int i = 0; i < currentEnemies.size(); i++) {
-            Enemy e = currentEnemies.get(i);
-            if (e.isAlive()) turnOrder.insert(e);
+            heroArray[i] = heroes.get(i);
         }
         
-        // Convert to array and sort by speed (descending)
-        Character[] turnArray = turnOrder.toArray();
-        CharacterSorter.mergeSort(turnArray, 0, turnArray.length - 1);
+        // Sort menggunakan MergeSort berdasarkan speed
+        CharacterSorter.mergeSort(heroArray, 0, heroArray.length - 1);
         
-        // --- BAGIAN YANG DIUBAH (Hanya Tampilkan Hero) ---
-        System.out.println("\n🎯 Turn Order (by Speed):");
-        int displayCount = 1;
-        for (int i = 0; i < turnArray.length; i++) {
-            if (turnArray[i] instanceof Hero) {
-                System.out.println(displayCount + ". " + turnArray[i]);
-                displayCount++;
+        System.out.println("\n⚡ Turn Order (by Speed):");
+        for (int i = 0; i < heroArray.length; i++) {
+            if (heroArray[i].isAlive()) {
+                System.out.println("  " + (i+1) + ". " + heroArray[i].getName() + 
+                                 " (Speed: " + heroArray[i].getSpeed() + ")");
             }
         }
-        // ------------------------------------------------
+        System.out.println();
         
-        // Execute turns (Logic tetep jalan untuk semua character termasuk Enemy)
-        for (int i = 0; i < turnArray.length; i++) {
-            Character c = turnArray[i];
-            if (!c.isAlive()) continue;
+        // Heroes attack in speed order
+        for (int i = 0; i < heroArray.length; i++) {
+            Hero hero = heroArray[i];
+            if (!hero.isAlive() || allEnemiesDead()) continue;
             
-            System.out.println("\n--- " + c.getName() + "'s turn ---");
+            System.out.println("\n--- " + hero.getName() + "'s Turn ---");
+            System.out.println(hero);
             
-            if (c instanceof Hero) {
-                heroTurn((Hero) c);
-            } else if (c instanceof Enemy) {
-                enemyTurn((Enemy) c);
+            // Tampilkan damage bonus jika ada
+            if (eventBonusDamage > 0) {
+                System.out.println("💪 Power Boost Active: +" + eventBonusDamage + " damage!");
             }
             
-            // Check win/lose condition
+            System.out.println("\nChoose action:");
+            System.out.println("[1] Attack");
+            System.out.println("[2] Skip");
+            System.out.print("Choice: ");
+            
+            int action = getIntInput();
+            
+            if (action == 1) {
+                // Hero menyerang
+                executeHeroAttack(hero);
+                
+                // Enemy counterattack setelah hero menyerang
+                if (hasAliveEnemy() && !allHeroesDead()) {
+                    executeEnemyCounterAttack();
+                }
+            } else {
+                System.out.println("⏭️ " + hero.getName() + " skips turn.");
+            }
+            
+            // Cek jika battle selesai
             if (allEnemiesDead() || allHeroesDead()) break;
+        }
+        
+        // Enemy yang belum sempat balas
+        if (!allEnemiesDead() && !allHeroesDead()) {
+            int remainingEnemies = countAliveEnemies() - countHeroActionsTaken();
+            if (remainingEnemies > 0) {
+                System.out.println("\n--- Remaining Enemy Attacks ---");
+                for (int i = 0; i < remainingEnemies && !allHeroesDead(); i++) {
+                    executeEnemyAttack();
+                }
+            }
         }
         
         displayBattleStatus();
     }
     
-    private void heroTurn(Hero hero) {
-        System.out.println(hero);
-        System.out.println("\nChoose action:");
-        System.out.println("[1] Use Skill");
-        System.out.println("[2] Skip Turn");
-        System.out.print("Choice: ");
+    
+    private void executeHeroAttack(Hero hero) {
+        SkillNodeLinkedList skills = hero.getSkillTree().getUnlockedSkills();
         
-        int action = getIntInput();
+        System.out.println("\n⚔️ Available Skills:");
+        for (int i = 0; i < skills.size(); i++) {
+            SkillNode skill = skills.get(i);
+            int totalDamage = skill.damage + eventBonusDamage;
+            System.out.println("[" + (i + 1) + "] " + skill.skillName + 
+                             " (Damage: " + totalDamage + ")");
+        }
+        System.out.print("Select skill: ");
+        int skillChoice = getIntInput() - 1;
         
-        if (action == 1) {
-            SkillNodeLinkedList skills = hero.getSkillTree().getUnlockedSkills();
+        if (skillChoice >= 0 && skillChoice < skills.size()) {
+            SkillNode selectedSkill = skills.get(skillChoice);
             
-            System.out.println("\nAvailable Skills:");
-            for (int i = 0; i < skills.size(); i++) {
-                SkillNode skill = skills.get(i);
-                System.out.println("[" + (i + 1) + "] " + skill.skillName + 
-                                 " (Damage: " + skill.damage + ")");
+            System.out.println("\n🎯 Select target:");
+            int validTargets = 0;
+            for (int i = 0; i < currentEnemies.size(); i++) {
+                Enemy e = currentEnemies.get(i);
+                if (e.isAlive()) {
+                    validTargets++;
+                    System.out.println("[" + validTargets + "] " + e);
+                }
             }
-            System.out.print("Select skill: ");
-            int skillChoice = getIntInput() - 1;
             
-            if (skillChoice >= 0 && skillChoice < skills.size()) {
-                SkillNode selectedSkill = skills.get(skillChoice);
-                
-                System.out.println("\nSelect target:");
-                int validTargets = 0;
-                for (int i = 0; i < currentEnemies.size(); i++) {
-                    Enemy e = currentEnemies.get(i);
-                    if (e.isAlive()) {
-                        System.out.println("[" + (++validTargets) + "] " + e);
+            if (validTargets == 0) {
+                System.out.println("❌ No enemies to target!");
+                return;
+            }
+            
+            System.out.print("Target: ");
+            int targetChoice = getIntInput() - 1;
+            
+            int targetIndex = -1;
+            int count = 0;
+            for (int i = 0; i < currentEnemies.size(); i++) {
+                if (currentEnemies.get(i).isAlive()) {
+                    if (count == targetChoice) {
+                        targetIndex = i;
+                        break;
                     }
+                    count++;
                 }
-                
-                System.out.print("Target: ");
-                int targetChoice = getIntInput() - 1;
-                
-                int targetIndex = 0;
-                int count = 0;
-                for (int i = 0; i < currentEnemies.size(); i++) {
-                    if (currentEnemies.get(i).isAlive()) {
-                        if (count == targetChoice) {
-                            targetIndex = i;
-                            break;
-                        }
-                        count++;
-                    }
-                }
-                
+            }
+            
+            if (targetIndex != -1) {
                 Enemy target = currentEnemies.get(targetIndex);
-                if (target != null && target.isAlive()) {
-                    int damage = hero.useSkill(selectedSkill, target);
-                    System.out.println("\n⚔️ " + hero.getName() + " uses " + 
-                                     selectedSkill.skillName + " on " + target.getName() + 
-                                     " for " + damage + " damage!");
-                    
-                    if (!target.isAlive()) {
-                        System.out.println("💀 " + target.getName() + " has been defeated!");
-                    }
+                int totalDamage = selectedSkill.damage + eventBonusDamage;
+                
+                target.takeDamage(totalDamage);
+                System.out.println("\n💥 " + hero.getName() + " uses " + 
+                                 selectedSkill.skillName + " on " + target.getName() + 
+                                 " for " + totalDamage + " damage!");
+                
+                if (!target.isAlive()) {
+                    System.out.println("💀 " + target.getName() + " has been defeated!");
                 }
             }
         }
     }
     
-    private void enemyTurn(Enemy enemy) {
-        // Build list of alive heroes manually
-        Hero[] aliveHeroes = new Hero[heroes.size()];
-        int count = 0;
+    private void executeEnemyCounterAttack() {
+        Enemy counterAttacker = findAliveEnemy();
+        if (counterAttacker == null) return;
+        
+        Hero target = findHeroWithLowestHP();
+        if (target == null) return;
+        
+        int damage = counterAttacker.getAttack();
+        
+        if (currentWave == 5) {
+            damage += 3;
+            System.out.println("🔥 Enemy empowered!");
+        }
+        
+        target.takeDamage(damage);
+        System.out.println("⚔️ " + counterAttacker.getName() + " counterattacks " + 
+                         target.getName() + " for " + damage + " damage!");
+        
+        if (!target.isAlive()) {
+            System.out.println("💀 " + target.getName() + " has fallen!");
+        }
+    }
+    
+    private void executeEnemyAttack() {
+        Enemy attacker = findAliveEnemy();
+        if (attacker == null) return;
+        
+        Hero target = findHeroWithLowestHP();
+        if (target == null) return;
+        
+        int damage = attacker.getAttack();
+        if (currentWave == 5) {
+            damage += 3;
+        }
+        
+        target.takeDamage(damage);
+        System.out.println("⚔️ " + attacker.getName() + " attacks " + 
+                         target.getName() + " for " + damage + " damage!");
+        
+        if (!target.isAlive()) {
+            System.out.println("💀 " + target.getName() + " has fallen!");
+        }
+    }
+    
+    // ==================== HELPER METHODS ====================
+    private int countHeroActionsTaken() {
+        return countAliveHeroes();
+    }
+    
+    private Enemy findAliveEnemy() {
+        for (int i = 0; i < currentEnemies.size(); i++) {
+            Enemy e = currentEnemies.get(i);
+            if (e != null && e.isAlive()) {
+                return e;
+            }
+        }
+        return null;
+    }
+    
+    private Hero findHeroWithLowestHP() {
+        Hero lowestHPHero = null;
+        int lowestHP = Integer.MAX_VALUE;
+        
         for (int i = 0; i < heroes.size(); i++) {
             Hero h = heroes.get(i);
-            if (h.isAlive()) {
-                aliveHeroes[count++] = h;
+            if (h != null && h.isAlive() && h.getCurrentHp() < lowestHP) {
+                lowestHP = h.getCurrentHp();
+                lowestHPHero = h;
             }
         }
         
-        if (count > 0) {
-            Hero target = aliveHeroes[(int)(Math.random() * count)];
-            int damage = enemy.getAttack();
-            target.takeDamage(damage);
-            
-            System.out.println("🗡️ " + enemy.getName() + " attacks " + 
-                             target.getName() + " for " + damage + " damage!");
-            
-            if (!target.isAlive()) {
-                System.out.println("💀 " + target.getName() + " has fallen!");
-            }
-        }
+        return lowestHPHero;
     }
     
     private void undoRound() {
@@ -218,21 +350,27 @@ class BattleManager {
     }
     
     private void displayBattleStatus() {
-        System.out.println("\n═══════════════════════════════════════");
-        System.out.println("          BATTLE STATUS");
-        System.out.println("═══════════════════════════════════════");
-        System.out.println("\n💥 HEROES:");
+        System.out.println("\n═════════════════════════════════════════");
+        System.out.println("            BATTLE STATUS");
+        System.out.println("═════════════════════════════════════════");
+        System.out.println("\n🛡️ HEROES:");
         for (int i = 0; i < heroes.size(); i++) {
             Hero h = heroes.get(i);
-            System.out.println("  " + h + (h.isAlive() ? " ✓" : " ✗"));
+            String status = h.isAlive() ? "✅ Alive" : "💀 Dead";
+            System.out.println("  " + h + " " + status);
         }
         
         System.out.println("\n👹 ENEMIES:");
         for (int i = 0; i < currentEnemies.size(); i++) {
             Enemy e = currentEnemies.get(i);
             if (e.isAlive()) {
-                System.out.println("  " + e + " ✓");
+                System.out.println("  " + e + " ✅ Alive");
             }
+        }
+        
+        // Tampilkan event aktif
+        if (eventBonusDamage > 0) {
+            System.out.println("\n⚡ ACTIVE EVENT: Power Boost (+" + eventBonusDamage + " damage)");
         }
     }
     
@@ -255,6 +393,26 @@ class BattleManager {
             if (currentEnemies.get(i).isAlive()) return false;
         }
         return true;
+    }
+    
+    private boolean hasAliveEnemy() {
+        return !allEnemiesDead();
+    }
+    
+    private int countAliveHeroes() {
+        int count = 0;
+        for (int i = 0; i < heroes.size(); i++) {
+            if (heroes.get(i).isAlive()) count++;
+        }
+        return count;
+    }
+    
+    private int countAliveEnemies() {
+        int count = 0;
+        for (int i = 0; i < currentEnemies.size(); i++) {
+            if (currentEnemies.get(i).isAlive()) count++;
+        }
+        return count;
     }
     
     private int getIntInput() {

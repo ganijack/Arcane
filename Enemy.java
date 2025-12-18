@@ -94,7 +94,6 @@ class EnemyLinkedList {
         }
     }
 }
-
 // ==================== ENEMY SEARCHER ====================
 class EnemySearcher {
     static Enemy linearSearchEnemy(EnemyLinkedList enemies, String name) {

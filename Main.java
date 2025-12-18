@@ -72,42 +72,235 @@ public class Main {
         heroes.insert(new Hero(1, "Aria the Swift", 100, 15, 25));
         heroes.insert(new Hero(2, "Brutus the Tank", 150, 20, 10));
         heroes.insert(new Hero(3, "Celeste the Mage", 80, 25, 20));
-
+        
         playerGold = 200;
     }
     
     private static void displayMainMenu() {
-        System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║          MAIN MENU                     ║");
-        System.out.println("╠════════════════════════════════════════╣");
-        System.out.println("║  [1] View Heroes                       ║");
-        System.out.println("║  [2] Upgrade Skills                    ║");
-        System.out.println("║  [3] Start Battle                      ║");
-        System.out.println("║  [4] Exit Game                         ║");
-        System.out.println("╚════════════════════════════════════════╝");
+        System.out.println("\n╔═══════════════════════════════════════╗");
+        System.out.println("║          MAIN MENU                    ║");
+        System.out.println("╠═══════════════════════════════════════╣");
+        System.out.println("║  [1] View Heroes                      ║");
+        System.out.println("║  [2] Upgrade Skills                   ║");
+        System.out.println("║  [3] Start Battle                     ║");
+        System.out.println("║  [4] Exit Game                        ║");
+        System.out.println("╚═══════════════════════════════════════╝");
         System.out.println("Current Gold: " + playerGold);
         System.out.print("\nChoose option: ");
     }
     
     private static void viewHeroes() {
-        System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║          YOUR HEROES                   ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        boolean viewingHeroes = true;
         
-        for (int i = 0; i < heroes.size(); i++) {
-            Hero h = heroes.get(i);
-            System.out.println("🛡️ " + h);
+        while (viewingHeroes) {
+            System.out.println("\n╔═══════════════════════════════════════╗");
+            System.out.println("║          YOUR HEROES                  ║");
+            System.out.println("╚═══════════════════════════════════════╝\n");
+            
+            for (int i = 0; i < heroes.size(); i++) {
+                Hero h = heroes.get(i);
+                System.out.println("🛡️ ID:" + h.getId() + " - " + h);
+            }
+            
+            System.out.println("\n╔═══════════════════════════════════════╗");
+            System.out.println("║  [1] Search Hero by ID                ║");
+            System.out.println("║  [2] Back to Main Menu                ║");
+            System.out.println("╚═══════════════════════════════════════╝");
+            System.out.print("Choose option: ");
+            
+            int choice = getIntInput();
+            
+            if (choice == 1) {
+                searchAndManageHero();
+            } else if (choice == 2) {
+                viewingHeroes = false;
+            } else {
+                System.out.println("Invalid choice!");
+            }
+        }
+    }
+    
+    private static void searchAndManageHero() {
+        System.out.print("\n🔍 Enter Hero ID to search: ");
+        int searchId = getIntInput();
+        
+        // Gunakan HeroSearcher untuk mencari hero by ID
+        Hero foundHero = HeroSearcher.searchHeroById(heroes, searchId);
+        
+        if (foundHero == null) {
+            System.out.println("\n❌ Hero with ID " + searchId + " not found!");
+            System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+            return;
+        }
+        
+        // Hero ditemukan, tampilkan detail dan opsi manipulasi
+        boolean managingHero = true;
+        
+        while (managingHero) {
+            System.out.println("\n╔══════════════════════════════════════════════════════╗");
+            System.out.println("║            HERO STATISTICS                           ║");
+            System.out.println("╚══════════════════════════════════════════════════════╝");
+            System.out.println("\n🛡️ Hero Found!");
+            System.out.println("═════════════════════════════════════════════════════════");
+            System.out.println("🆔 ID        : " + foundHero.getId());
+            System.out.println("👤 Name      : " + foundHero.getName());
+            System.out.println("❤️ HP        : " + foundHero.getCurrentHp() + "/" + foundHero.getMaxHp());
+            System.out.println("⚔️ Attack    : " + foundHero.getAttack());
+            System.out.println("⚡ Speed     : " + foundHero.getSpeed());
+            System.out.println("💚 Status    : " + (foundHero.isAlive() ? "Alive" : "Dead"));
+            System.out.println("═════════════════════════════════════════════════════════");
+            
+            System.out.println("\n╔═══════════════════════════════════════════════════════╗");
+            System.out.println("║           MANAGE HERO STATS                           ║");
+            System.out.println("╠═══════════════════════════════════════════════════════╣");
+            System.out.println("║  [1] Modify Max HP (Cost: 50 Gold)                    ║");
+            System.out.println("║  [2] Modify Attack (Cost: 50 Gold)                    ║");
+            System.out.println("║  [3] Modify Speed (Cost: 50 Gold)                     ║");
+            System.out.println("║  [4] View Skill Tree                                  ║");
+            System.out.println("║  [5] Back to Hero List                                ║");
+            System.out.println("╚═══════════════════════════════════════════════════════╝");
+            System.out.println("💰 Your Gold: " + playerGold);
+            System.out.print("Choose option: ");
+            
+            int action = getIntInput();
+            
+            switch (action) {
+                case 1:
+                    modifyMaxHP(foundHero);
+                    break;
+                case 2:
+                    modifyAttack(foundHero);
+                    break;
+                case 3:
+                    modifySpeed(foundHero);
+                    break;
+                
+                case 4:
+                    viewHeroSkillTree(foundHero);
+                    break;
+                case 5:
+                    managingHero = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+    
+    private static void modifyMaxHP(Hero hero) {
+    if (playerGold < 50) {
+        System.out.println("\n❌ Not enough gold! Need 50 gold.");
+        System.out.println("\nPress Enter to continue...");
+        scanner.nextLine();
+        return;
+    }
+    
+    System.out.println("\n👉 Current Max HP: " + hero.getMaxHp());
+    System.out.print("Enter new Max HP (50-500): ");
+    int newMaxHP = getIntInput();
+    
+    if (newMaxHP >= 50 && newMaxHP <= 500) {
+        // Set both max HP and current HP to the new value
+        hero.setMaxHp(newMaxHP);
+        hero.setCurrentHp(newMaxHP);  // Langsung set current HP ke nilai baru
+        
+        playerGold -= 50;
+        System.out.println("\n✅ Max HP updated to " + newMaxHP + "!");
+        System.out.println("💚 Current HP also set to " + newMaxHP + "!");
+        System.out.println("💰 Remaining Gold: " + playerGold);
+    } else {
+        System.out.println("\n❌ Invalid HP value! Must be between 50-500.");
+    }
+    
+    System.out.println("\nPress Enter to continue...");
+    scanner.nextLine();
+}
+    
+    private static void modifyAttack(Hero hero) {
+        if (playerGold < 50) {
+            System.out.println("\n❌ Not enough gold! Need 50 gold.");
+            System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+            return;
+        }
+        
+        System.out.println("\n💉 Current Attack: " + hero.getAttack());
+        System.out.print("Enter new Attack (5-100): ");
+        int newAttack = getIntInput();
+        
+        if (newAttack >= 5 && newAttack <= 100) {
+            hero.setAttack(newAttack);
+            playerGold -= 50;
+            System.out.println("\n✅ Attack updated to " + newAttack + "!");
+            System.out.println("💰 Remaining Gold: " + playerGold);
+        } else {
+            System.out.println("\n❌ Invalid Attack value! Must be between 5-100.");
         }
         
         System.out.println("\nPress Enter to continue...");
         scanner.nextLine();
+    }
+    
+    private static void modifySpeed(Hero hero) {
+        if (playerGold < 50) {
+            System.out.println("\n❌ Not enough gold! Need 50 gold.");
+            System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+            return;
+        }
+        
+        System.out.println("\n💉 Current Speed: " + hero.getSpeed());
+        System.out.print("Enter new Speed (5-50): ");
+        int newSpeed = getIntInput();
+        
+        if (newSpeed >= 5 && newSpeed <= 50) {
+            hero.setSpeed(newSpeed);
+            playerGold -= 50;
+            System.out.println("\n✅ Speed updated to " + newSpeed + "!");
+            System.out.println("💰 Remaining Gold: " + playerGold);
+        } else {
+            System.out.println("\n❌ Invalid Speed value! Must be between 5-50.");
+        }
+        
+        System.out.println("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
+    
+    private static void restoreHP(Hero hero) {
+        if (playerGold < 30) {
+            System.out.println("\n❌ Not enough gold! Need 30 gold.");
+            System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+            return;
+        }
+        
+        int oldHP = hero.getCurrentHp();
+        hero.setCurrentHp(hero.getMaxHp());
+        int restored = hero.getMaxHp() - oldHP;
+        
+        playerGold -= 30;
+        System.out.println("\n✅ " + hero.getName() + " HP restored!");
+        System.out.println("💚 Restored: +" + restored + " HP");
+        System.out.println("💰 Remaining Gold: " + playerGold);
+        
+        System.out.println("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
+    
+    private static void viewHeroSkillTree(Hero hero) {
+        System.out.println("\n🌟 " + hero.getName() + "'s Skill Tree:");
+        System.out.println("═════════════════════════════════════════════");
+        hero.getSkillTree().displayTree(hero.getSkillTree().root, "", true);
+        
+        System.out.println("\nPress Enter to continue...");
         scanner.nextLine();
     }
     
     private static void upgradeSkills() {
-        System.out.println("\n╔════════════════════════════════════════╗");
+        System.out.println("\n╔═══════════════════════════════════════╗");
         System.out.println("║       UPGRADE SKILLS                   ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        System.out.println("╚═══════════════════════════════════════╝\n");
         
         System.out.println("Select a hero:");
         for (int i = 0; i < heroes.size(); i++) {
@@ -139,7 +332,7 @@ public class Main {
                         System.out.println("💰 Remaining Gold: " + playerGold);
                     } else {
                         System.out.println("❌ Cannot unlock " + skillName + 
-                                         ". Parent skill1 must be unlocked first or skill already unlocked.");
+                                         ". Parent skill must be unlocked first or skill already unlocked.");
                     }
                 } else {
                     System.out.println("❌ Not enough gold! Need 100 gold.");

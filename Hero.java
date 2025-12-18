@@ -36,6 +36,18 @@ abstract class Character {
         isAlive = hp > 0;
     }
     
+    void setMaxHp(int hp) {
+        maxHp = hp;
+    }
+    
+    void setAttack(int atk) {
+        attack = atk;
+    }
+    
+    void setSpeed(int spd) {
+        speed = spd;
+    }
+    
     public String toString() {
         return name + " [HP: " + currentHp + "/" + maxHp + ", ATK: " + attack + ", SPD: " + speed + "]";
     }
