@@ -12,7 +12,8 @@
 5. Undo: If a hero falls, use the Undo option to rethink your strategy.
 
 🛡️ Hero Roster
-Aria the Swift: High speed, lower health—strikes first, prays she doesn't get hit back.
+
+Aria the Swift: High speed, lower health strikes first, prays she doesn't get hit back.
 
 Brutus the Tank: Massive HP and Attack, but usually the last one to move.
 
